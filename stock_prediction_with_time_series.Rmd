@@ -18,28 +18,94 @@ library(tseries)
 library(timeSeries)
 library(forecast)
 library(xts)
+library(ggplot2)
 ```
 
 ```{r}
-getSymbols('TSLA', from = '2019-09-24', to = '2020-09-24')
+getSymbols('AAPL', from = '2019-09-24', to = '2020-09-24')
 ```
 
 ```{r}
-class (SPY)
+class (AAPL)
 ```
 
+
 ```{r}
-SPY_Close_Prices <- TSLA[,4]
-plot(SPY_Close_Prices)
+AAPL_Close_Prices <- AAPL[,4]
+plot(AAPL_Close_Prices)
 par(mfrow=c(1,1))
 
 ```
 
 ```{r}
-pacf(SPY_Close_Prices)
+par(mfrow= c(1,2))
+acf(AAPL_Close_Prices)
+pacf(AAPL_Close_Prices)
 ```
 ```{r}
+print(adf.test(AAPL_Close_Prices))
+auto.arima(AAPL_Close_Prices, seasonal = FALSE)
+```
+```{r}
+fitA <- auto.arima(AAPL_Close_Prices, seasonal = FALSE)
+tsdisplay(residuals(fitA), lag.max = 40, main = '(3,1,2) Model residuals' )
+```
+```{r}
+fitB <- arima(AAPL_Close_Prices, order = c(3,2,9))
+tsdisplay(residuals(fitB), lag.max = 40, main = '(3,1,2) Model residuals' )
 
 ```
 
-111
+```{r}
+par(mfrow = c(1,2))
+fcast1 <- forecast(fitA, term = 10)
+fcast2 <- forecast(fitB, term = 10)
+plot(fcast1)
+plot(fcast2)
+
+```
+```{r}
+accuracy(fitA)
+accuracy(fitB)
+```
+````{r}
+ts3 <- AAPL_Close_Prices
+train <-window(ts3, start = "2019-09-24", end = "2020-07-01")
+test <-window(ts3, start = "2020-07-01", end = "2020-09-23")
+
+
+```
+
+
+```{r}
+
+naive_method <- snaive(train,h=59) # naive method
+mean_method <- meanf(train,h=59) # mean method
+
+
+# Plotting naive forecast
+autoplot(naive_method) +
+  xlab("year") +
+  ylab("CO2 concentration (ppm) ")
+```
+
+```{r}
+holt_winn1 <- holt(train,seasonal="additive",59) # Holt-Winters additive
+
+autoplot(holt_winn1) +
+  xlab("year") +
+  ylab("CO2 concentration (ppm)")
+```
+
+```{r}
+RMSE(as.numeric(test), holt_winn1$mean)
+```
+```{r}
+RMSE(as.numeric(test), mean_method$mean)
+
+```
+
+
+
+```
+

@@ -98,10 +98,10 @@ autoplot(holt_winn1) +
 ```
 
 ```{r}
-RMSE(as.numeric(test), holt_winn1$mean)
+#RMSE(as.numeric(test), holt_winn1$mean)
 ```
 ```{r}
-RMSE(as.numeric(test), mean_method$mean)
+#RMSE(as.numeric(test), mean_method$mean)
 
 ```
 
